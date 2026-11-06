@@ -1,7 +1,32 @@
-if game.PlaceId == 6516141723 then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/GoldDoomOwner/Instant/refs/heads/main/Doors"))()
-elseif game.PlaceId == 6839171747 then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/GoldDoomOwner/Instant/refs/heads/main/Doors"))()
-elseif game.GameId == 9391468976 then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/GoldDoomOwner/Instant/refs/heads/main/JJS"))()
+-- Instant bootstrapper: loads the right script for the game you're in
+local BASE = "https://raw.githubusercontent.com/GoldDoomOwner/Instant/refs/heads/main/"
+
+local GAMES = {
+    -- [PlaceId or GameId] = script name
+    [6516141723] = "Doors",   -- DOORS lobby
+    [6839171747] = "Doors",   -- DOORS run
+    [3833818265] = "Doors",   -- DOORS universe (any DOORS place)
+    [9391468976] = "JJS",     -- Jujutsu Shenanigans
+}
+
+local name = GAMES[game.PlaceId] or GAMES[game.GameId]
+
+local function notify(text)
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Instant", Text = text, Duration = 6,
+        })
+    end)
+end
+
+if not name then
+    return notify("This game isn't supported yet. Instant works in DOORS and Jujutsu Shenanigans.")
+end
+
+local ok, err = pcall(function()
+    loadstring(game:HttpGet(BASE .. name))()
+end)
+if not ok then
+    warn("[Instant] failed to load " .. name .. ": " .. tostring(err))
+    notify("Couldn't load the " .. name .. " script. Check F9 for the error.")
 end
